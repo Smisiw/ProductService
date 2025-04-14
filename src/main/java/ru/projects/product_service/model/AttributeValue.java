@@ -1,0 +1,23 @@
+package ru.projects.product_service.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+@Entity
+@Data
+@Table(name = "attribute_values")
+@RequiredArgsConstructor
+public class AttributeValue {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String value;
+
+    @ManyToOne
+    @JoinColumn(name = "attribute_id")
+    private Attribute attribute;
+
+}

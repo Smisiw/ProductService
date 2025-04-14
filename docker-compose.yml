@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-network
+
+  product-service:
+    image: product-service:latest
+    container_name: product-service
+    build:
+      context: ./product-service
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_URL: jdbc:postgresql://db:5432/product_db
+      DB_USERNAME: admin
+      DB_PASSWORD: secret
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - microservices-network
+
+  db:
+    image: postgres:15
+    container_name: product-db
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5434:5432"
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
