@@ -20,4 +20,8 @@ public class AttributeValue {
     @JoinColumn(name = "attribute_id")
     private Attribute attribute;
 
+    @ManyToOne
+    @JoinColumn(name = "variation_id")
+    private ProductVariation variation;
+
 }

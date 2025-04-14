@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -25,4 +27,12 @@ public class Category {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Category> children = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "category_attributes",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "attribute_id")
+    )
+    private Set<Attribute> attributes = new HashSet<>();
 }

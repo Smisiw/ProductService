@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -16,7 +18,22 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductVariation> variations;
+    private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductVariation> variations = new HashSet<>();
+
+    public void addVariation(ProductVariation variation) {
+        variation.setProduct(this);
+        variations.add(variation);
+    }
+
+    public void removeVariation(ProductVariation variation) {
+        variation.setProduct(null);
+        variations.remove(variation);
+    }
 }

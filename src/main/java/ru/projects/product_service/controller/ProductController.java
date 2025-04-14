@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.projects.product_service.DTO.ProductVariationRequest;
 import ru.projects.product_service.model.Product;
 import ru.projects.product_service.model.ProductVariation;
 import ru.projects.product_service.service.ProductService;
@@ -17,8 +18,8 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.createProduct(product));
+    public ResponseEntity<ProductVariation> createProduct(@RequestBody ProductVariationRequest request) {
+        return ResponseEntity.ok(productService.addVariation(null, request));
     }
 
     @GetMapping("/{id}")
@@ -39,8 +40,8 @@ public class ProductController {
 
 
     @PostMapping("/{productId}/variations")
-    public ResponseEntity<ProductVariation> addVariation(@PathVariable Long productId, @RequestBody ProductVariation variation) {
-        return ResponseEntity.ok(productService.addVariation(productId, variation));
+    public ResponseEntity<ProductVariation> addVariation(@PathVariable Long productId, @RequestBody ProductVariationRequest request) {
+        return ResponseEntity.ok(productService.addVariation(productId, request));
     }
 
     @GetMapping("/variations")
@@ -49,8 +50,8 @@ public class ProductController {
     }
 
     @PutMapping("/variations/{variationId}")
-    public ResponseEntity<ProductVariation> updateVariation(@PathVariable Long variationId, @RequestBody ProductVariation variation) {
-        return ResponseEntity.ok(productService.updateVariation(variationId, variation));
+    public ResponseEntity<ProductVariation> updateVariation(@PathVariable Long variationId, @RequestBody ProductVariationRequest request) {
+        return ResponseEntity.ok(productService.updateVariation(variationId, request));
     }
 
     @GetMapping("/{productId}/variations")

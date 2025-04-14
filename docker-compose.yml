@@ -12,7 +12,7 @@ services:
     image: product-service:latest
     container_name: product-service
     build:
-      context: ./product-service
+      context: .
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379

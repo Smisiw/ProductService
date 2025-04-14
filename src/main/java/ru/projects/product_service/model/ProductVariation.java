@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -19,19 +21,24 @@ public class ProductVariation {
     private String name;
     private String description;
     @Column(nullable = false)
-    private double price;
+    private BigDecimal price;
     private int quantity;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "product_variation_attributes",
-            joinColumns = @JoinColumn(name = "variation_id"),
-            inverseJoinColumns = @JoinColumn(name = "attribute_value_id")
-    )
-    private List<AttributeValue> attributes;
+    @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<AttributeValue> attributeValues = new HashSet<>();
 
+    public void setAttributeValues(Set<AttributeValue> attributes) {
+        for (AttributeValue attribute : new HashSet<>(attributeValues)) {
+            attribute.setVariation(null);
+        }
+        attributeValues.clear();
+        for (AttributeValue attribute : attributes) {
+            attributeValues.add(attribute);
+            attribute.setVariation(this);
+        }
+    }
 }

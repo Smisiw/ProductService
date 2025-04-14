@@ -10,4 +10,5 @@ import ru.projects.product_service.model.ProductVariation;
 @Repository
 public interface ProductVariationRepository extends JpaRepository<ProductVariation, Long> {
     Page<ProductVariation> findByProductId(Long id, Pageable pageable);
+    Page<ProductVariation> findByProductCategoryId(Long id, Pageable pageable);
 }
