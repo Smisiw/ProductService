@@ -1,11 +1,13 @@
 package ru.projects.product_service.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString(exclude = "variation")
+@EqualsAndHashCode(exclude = "variation")
 @Table(name = "attribute_values")
 @RequiredArgsConstructor
 public class AttributeValue {

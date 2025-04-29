@@ -1,14 +1,16 @@
 package ru.projects.product_service.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @Table(name = "products")
 @RequiredArgsConstructor
 public class Product {
@@ -25,6 +27,17 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductVariation> variations = new HashSet<>();
+
+    public void setVariations(Set<ProductVariation> variations) {
+        for (ProductVariation variation : new HashSet<>(this.variations)) {
+            variation.setProduct(null);
+        }
+        this.variations.clear();
+        for (ProductVariation variation : variations) {
+            this.variations.add(variation);
+            variation.setProduct(this);
+        }
+    }
 
     public void addVariation(ProductVariation variation) {
         variations.add(variation);

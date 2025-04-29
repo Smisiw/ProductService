@@ -1,15 +1,17 @@
 package ru.projects.product_service.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString(exclude = "product")
+@EqualsAndHashCode(exclude = "product")
 @Table(name = "product_variations")
 @RequiredArgsConstructor
 public class ProductVariation {
