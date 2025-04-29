@@ -35,6 +35,12 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Установка прав gradle
+        run: chmod +x gradlew
+
+      - name: Сборка проекта
+        run: ./gradlew clean build --no-daemon
+
       - name: Установка Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
@@ -48,4 +54,4 @@ jobs:
         run: docker compose up --build -d
 
       - name: Пуш Docker-образа в Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/auth_service
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/product_service

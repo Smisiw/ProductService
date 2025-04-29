@@ -9,8 +9,8 @@ services:
       - microservices-network
 
   product-service:
-    image: product-service:latest
-    container_name: product-service
+    image: axterium/product_service:latest
+    container_name: product_service
     build:
       context: .
     environment:
