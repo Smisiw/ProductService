@@ -22,7 +22,7 @@ public class ProductVariation {
     private String description;
     @Column(nullable = false)
     private BigDecimal price;
-    private int quantity;
+    private Integer quantity;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

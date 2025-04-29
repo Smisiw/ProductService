@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,8 +27,8 @@ public class Product {
     private Set<ProductVariation> variations = new HashSet<>();
 
     public void addVariation(ProductVariation variation) {
-        variation.setProduct(this);
         variations.add(variation);
+        variation.setProduct(this);
     }
 
     public void removeVariation(ProductVariation variation) {

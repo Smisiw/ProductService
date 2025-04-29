@@ -3,8 +3,8 @@ package ru.projects.product_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.projects.product_service.DTO.CategoryRequest;
-import ru.projects.product_service.model.Category;
+import ru.projects.product_service.DTO.CategoryRequestDto;
+import ru.projects.product_service.DTO.CategoryTreeResponseDto;
 import ru.projects.product_service.service.CategoryService;
 
 import java.util.List;
@@ -16,14 +16,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Category> create(@RequestBody CategoryRequest request) {
-        Category category = categoryService.createCategory(request.getName(), request.getParentId(), request.getAttributeIds());
+    public ResponseEntity<CategoryTreeResponseDto> create(@RequestBody CategoryRequestDto categoryRequestDto) {
+        CategoryTreeResponseDto category = categoryService.createCategory(categoryRequestDto);
         return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathVariable Long id, @RequestBody CategoryRequest request) {
-        Category category = categoryService.updateCategory(id, request.getName(), request.getParentId(), request.getAttributeIds());
+    public ResponseEntity<CategoryTreeResponseDto> update(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequestDto) {
+        CategoryTreeResponseDto category = categoryService.updateCategory(id, categoryRequestDto);
         return ResponseEntity.ok(category);
     }
 
@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAll() {
+    public ResponseEntity<List<CategoryTreeResponseDto>> getAll() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 }

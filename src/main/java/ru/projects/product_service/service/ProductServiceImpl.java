@@ -2,24 +2,16 @@ package ru.projects.product_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.projects.product_service.DTO.ProductVariationRequest;
+import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.exception.ProductNotFoundException;
-import ru.projects.product_service.model.Attribute;
-import ru.projects.product_service.model.AttributeValue;
-import ru.projects.product_service.model.Product;
-import ru.projects.product_service.model.ProductVariation;
-import ru.projects.product_service.repository.AttributeRepository;
-import ru.projects.product_service.repository.AttributeValueRepository;
-import ru.projects.product_service.repository.ProductRepository;
-import ru.projects.product_service.repository.ProductVariationRepository;
+import ru.projects.product_service.mapper.ProductMapper;
+import ru.projects.product_service.mapper.VariationMapper;
+import ru.projects.product_service.model.*;
+import ru.projects.product_service.repository.*;
 
-import java.util.HashSet;
-import java.util.Set;
 
 
 @Service
@@ -27,17 +19,27 @@ import java.util.Set;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductVariationRepository productVariationRepository;
-    private final AttributeValueRepository attributeValueRepository;
-    private final AttributeRepository attributeRepository;
+    private final ProductMapper productMapper;
+    private final VariationMapper variationMapper;
 
     @Override
-    public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    @Transactional
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
+        Product product = productMapper.toProduct(productRequestDto);
+        return productMapper.toProductResponseDto(productRepository.save(product));
     }
 
     @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
+    public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).map(productMapper::toProductResponseDto);
+    }
+
+    @Override
+    public ProductResponseDto getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new ProductNotFoundException("Product with id " + id + " not found")
+        );
+        return productMapper.toProductResponseDto(product);
     }
 
     @Override
@@ -48,48 +50,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductVariation addVariation(Long productId, ProductVariationRequest request) {
-        Product product;
-        if (productId == null) {
-            product = new Product();
-        } else {
-            product = productRepository.findById(productId).orElseThrow(
+    public VariationResponseDto addVariation(Long productId, VariationRequestDto variationRequestDto) {
+        Product product = productRepository.findById(productId).orElseThrow(
                     () -> new ProductNotFoundException("Product with id " + productId + " not found")
             );
-        }
-        ProductVariation variation = new ProductVariation();
-        variation.setName(request.getName());
-        variation.setDescription(request.getDescription());
-        variation.setPrice(request.getPrice());
-        variation.setQuantity(request.getQuantity());
-        Set<AttributeValue> attributeValues = new HashSet<>();
-        request.getAttributeValues().forEach((key, value) -> {
-            Attribute attribute = attributeRepository.findById(key).orElseThrow(
-                    () -> new RuntimeException("Attribute with id " + key + " not found")
-            );
-            AttributeValue attributeValue = new AttributeValue();
-            attributeValue.setAttribute(attribute);
-            attributeValue.setValue(value);
-            attributeValues.add(attributeValue);
-        });
-        variation.setAttributeValues(attributeValues);
+        ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
         product.addVariation(variation);
-        return productVariationRepository.save(variation);
+        productRepository.save(product);
+        return variationMapper.toVariationResponseDto(variation);
     }
 
     @Override
-    public ProductVariation getVariationById(Long variationId) {
-        return productVariationRepository.findById(variationId).orElseThrow(() -> new ProductNotFoundException("Product variation with id " + variationId + " not found"));
+    public VariationResponseDto getVariationById(Long variationId) {
+        ProductVariation variation = productVariationRepository.findById(variationId).orElseThrow(() -> new ProductNotFoundException("Product variation with id " + variationId + " not found"));
+        return variationMapper.toVariationResponseDto(variation);
     }
 
     @Override
-    public Page<ProductVariation> getVariationsByProductId(Long productId, Pageable pageable) {
-        return productVariationRepository.findByProductId(productId, pageable);
+    public Page<VariationResponseDto> getVariationsByProductId(Long productId, Pageable pageable) {
+        return productVariationRepository.findByProductId(productId, pageable).map(variationMapper::toVariationResponseDto);
     }
 
     @Override
-    public Page<ProductVariation> getAllVariations(Pageable pageable) {
-        return productVariationRepository.findAll(pageable);
+    public Page<VariationResponseDto> getAllVariations(Pageable pageable) {
+        return productVariationRepository.findAll(pageable).map(variationMapper::toVariationResponseDto);
     }
 
 
@@ -101,24 +85,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductVariation updateVariation(Long variationId, ProductVariationRequest request) {
-        ProductVariation variation = getVariationById(variationId);
-        variation.setName(request.getName());
-        variation.setDescription(request.getDescription());
-        variation.setPrice(request.getPrice());
-        variation.setQuantity(request.getQuantity());
-        Set<AttributeValue> attributeValues = new HashSet<>();
-        request.getAttributeValues().forEach((key, value) -> {
-            Attribute attribute = attributeRepository.findById(key).orElseThrow(
-                    () -> new RuntimeException("Attribute with id " + key + " not found")
-            );
-            AttributeValue attributeValue = new AttributeValue();
-            attributeValue.setAttribute(attribute);
-            attributeValue.setValue(value);
-            attributeValues.add(attributeValue);
-        });
-        variation.setAttributeValues(attributeValues);
-        return productVariationRepository.save(variation);
+    public VariationResponseDto updateVariation(Long variationId, VariationRequestDto variationRequestDto) {
+        productVariationRepository.findById(variationId).orElseThrow(
+                () -> new ProductNotFoundException("Product variation with id " + variationId + " not found")
+        );
+        ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
+        variation.setId(variationId);
+        productVariationRepository.save(variation);
+        return variationMapper.toVariationResponseDto(variation);
     }
 
 }
