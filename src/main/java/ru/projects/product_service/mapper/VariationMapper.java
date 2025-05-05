@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = AttributeValueMapper.class)
 public abstract class VariationMapper {
     @Autowired
-    AttributeRepository attributeRepository;
+    private AttributeRepository attributeRepository;
 
     @Mapping(target = "productId", source = "product.id")
     public abstract VariationResponseDto toVariationResponseDto (ProductVariation productVariation);

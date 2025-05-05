@@ -21,6 +21,9 @@ public class Product {
 
     private String name;
 
+    @Column(name = "seller_id", nullable = false)
+    private Long sellerId;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

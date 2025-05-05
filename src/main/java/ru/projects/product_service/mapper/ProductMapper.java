@@ -14,13 +14,14 @@ import java.util.Set;
 @Mapper(componentModel = "spring", uses = {VariationMapper.class, CategoryMapper.class})
 public abstract class ProductMapper {
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
     @Autowired
-    VariationMapper variationMapper;
+    private VariationMapper variationMapper;
 
     public abstract ProductResponseDto toProductResponseDto(Product product);
-    public Product toProduct(ProductRequestDto productRequestDto) {
+    public Product toProduct(ProductRequestDto productRequestDto, Long sellerId) {
         Product product = new Product();
+        product.setSellerId(sellerId);
         product.setName(productRequestDto.name());
         Category category = categoryRepository.findById(productRequestDto.categoryId()).orElseThrow(
                 () -> new RuntimeException("Category not found")

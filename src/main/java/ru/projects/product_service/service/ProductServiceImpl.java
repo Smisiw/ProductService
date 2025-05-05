@@ -4,14 +4,18 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.exception.ProductNotFoundException;
+import ru.projects.product_service.exception.RolePermissionExceprion;
 import ru.projects.product_service.mapper.ProductMapper;
 import ru.projects.product_service.mapper.VariationMapper;
 import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.*;
-
 
 
 @Service
@@ -24,8 +28,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
     public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
-        Product product = productMapper.toProduct(productRequestDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Product product = productMapper.toProduct(productRequestDto, Long.parseLong(userDetails.getUsername()));
         return productMapper.toProductResponseDto(productRepository.save(product));
     }
 
@@ -36,24 +43,25 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto getProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(
-                () -> new ProductNotFoundException("Product with id " + id + " not found")
-        );
+        Product product = getProductOrThrow(id);
         return productMapper.toProductResponseDto(product);
     }
 
     @Override
     @Transactional
+    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
     public void deleteProductById(Long id) {
-        productRepository.deleteById(id);
+        Product product = getProductOrThrow(id);
+        validatePermission(id);
+        productRepository.delete(product);
     }
 
     @Override
     @Transactional
+    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
     public VariationResponseDto addVariation(Long productId, VariationRequestDto variationRequestDto) {
-        Product product = productRepository.findById(productId).orElseThrow(
-                    () -> new ProductNotFoundException("Product with id " + productId + " not found")
-            );
+        Product product = getProductOrThrow(productId);
+        validatePermission(productId);
         ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
         product.addVariation(variation);
         productRepository.save(product);
@@ -79,12 +87,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
     public void deleteVariationById(Long variationId) {
         productVariationRepository.deleteById(variationId);
     }
 
     @Override
     @Transactional
+    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
     public VariationResponseDto updateVariation(Long variationId, VariationRequestDto variationRequestDto) {
         productVariationRepository.findById(variationId).orElseThrow(
                 () -> new ProductNotFoundException("Product variation with id " + variationId + " not found")
@@ -95,4 +105,21 @@ public class ProductServiceImpl implements ProductService {
         return variationMapper.toVariationResponseDto(variation);
     }
 
+    private Product getProductOrThrow(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
+    }
+
+    private void validatePermission(Long sellerId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+
+        if (!isAdmin && !userId.equals(sellerId)) {
+            throw new RolePermissionExceprion("User has no permission to this product");
+        }
+    }
 }

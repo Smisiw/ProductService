@@ -2,7 +2,9 @@ package ru.projects.product_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import ru.projects.product_service.exception.AttributeNotFoundException;
 import ru.projects.product_service.model.Attribute;
 import ru.projects.product_service.repository.AttributeRepository;
 
@@ -15,6 +17,7 @@ public class AttributeServiceImpl implements AttributeService{
 
     @Override
     @Transactional
+    @Secured("ROLE_ADMIN")
     public Attribute createAttribute(String name) {
         attributeRepository.findByName(name).ifPresent(attribute -> {
             throw new RuntimeException("Attribute already exists");
@@ -26,9 +29,7 @@ public class AttributeServiceImpl implements AttributeService{
 
     @Override
     public Attribute getAttributeById(Long id) {
-        return attributeRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Attribute with id " + id + " not found")
-        );
+        return getAttributeOrThrow(id);
     }
 
     @Override
@@ -38,17 +39,24 @@ public class AttributeServiceImpl implements AttributeService{
 
     @Override
     @Transactional
+    @Secured("ROLE_ADMIN")
     public Attribute updateAttribute(Long id, String name) {
-        Attribute attribute = attributeRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Attribute with id " + id + " not found")
-        );
+        Attribute attribute = getAttributeOrThrow(id);
         attribute.setName(name);
         return attributeRepository.save(attribute);
     }
 
     @Override
     @Transactional
+    @Secured("ROLE_ADMIN")
     public void deleteAttribute(Long id) {
-        attributeRepository.deleteById(id);
+        Attribute attribute = getAttributeOrThrow(id);
+        attributeRepository.delete(attribute);
+    }
+
+    private Attribute getAttributeOrThrow(Long id) {
+        return attributeRepository.findById(id).orElseThrow(
+                () -> new AttributeNotFoundException("Attribute with id " + id + " not found")
+        );
     }
 }

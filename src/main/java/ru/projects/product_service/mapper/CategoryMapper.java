@@ -15,9 +15,9 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public abstract class CategoryMapper {
     @Autowired
-    protected CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
     @Autowired
-    protected AttributeRepository attributeRepository;
+    private AttributeRepository attributeRepository;
 
     public abstract CategoryResponseDto toCategoryResponseDto(Category category);
     public abstract CategoryTreeResponseDto toCategoryTreeResponseDto(Category category);
