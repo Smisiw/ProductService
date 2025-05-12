@@ -65,4 +65,9 @@ public class ProductController {
         productService.deleteVariationById(variationId);
         return ResponseEntity.ok("Deleted variation with id " + variationId);
     }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<Page<VariationResponseDto>> getVariationsByCategory(@PathVariable Long id, Pageable pageable) {
+        return ResponseEntity.ok(productService.getVariationsByCategoryId(id, pageable));
+    }
 }
