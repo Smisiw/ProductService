@@ -11,6 +11,8 @@ import ru.projects.product_service.DTO.VariationRequestDto;
 import ru.projects.product_service.DTO.VariationResponseDto;
 import ru.projects.product_service.service.ProductService;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/products")
@@ -48,6 +50,11 @@ public class ProductController {
     @GetMapping("/variations")
     public ResponseEntity<Page<VariationResponseDto>> getVariations(Pageable pageable) {
         return ResponseEntity.ok(productService.getAllVariations(pageable));
+    }
+
+    @PostMapping("/variations-by-ids")
+    public ResponseEntity<List<VariationResponseDto>> getVariationsByIds(@RequestBody List<Long> ids) {
+        return ResponseEntity.ok(productService.getVariationsByIds(ids));
     }
 
     @PutMapping("/variations/{variationId}")

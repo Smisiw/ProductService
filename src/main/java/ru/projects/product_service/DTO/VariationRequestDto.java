@@ -8,6 +8,7 @@ public record VariationRequestDto(
         String description,
         BigDecimal price,
         Integer quantity,
+        Integer reserved,
         Set<AttributeValueRequestDto> attributes
 ) {
 }

@@ -21,7 +21,7 @@ services:
       DB_PASSWORD: secret
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
     ports:
-      - "8082:8082"
+      - "8082:8080"
     depends_on:
       - db
       - redis

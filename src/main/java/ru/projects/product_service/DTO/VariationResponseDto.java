@@ -9,6 +9,7 @@ public record VariationResponseDto(
         String name,
         String description,
         Integer quantity,
+        Integer reserved,
         BigDecimal price,
         Set<AttributeValueResponseDto> attributeValues
 ) {

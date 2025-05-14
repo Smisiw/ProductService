@@ -25,6 +25,7 @@ public class ProductVariation {
     @Column(nullable = false)
     private BigDecimal price;
     private Integer quantity;
+    private Integer reserved;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

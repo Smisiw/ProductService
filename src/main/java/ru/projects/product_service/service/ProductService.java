@@ -17,6 +17,8 @@ import ru.projects.product_service.mapper.VariationMapper;
 import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.*;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -63,9 +65,9 @@ public class ProductService {
         return variationMapper.toVariationResponseDto(variation);
     }
 
-    public VariationResponseDto getVariationById(Long variationId) {
-        ProductVariation variation = productVariationRepository.findById(variationId).orElseThrow(() -> new ProductNotFoundException("Product variation with id " + variationId + " not found"));
-        return variationMapper.toVariationResponseDto(variation);
+    public List<VariationResponseDto> getVariationsByIds(List<Long> variationIds) {
+        List<ProductVariation> variations = productVariationRepository.findAllById(variationIds);
+        return variationMapper.toVariationResponseDtoList(variations);
     }
 
     public Page<VariationResponseDto> getVariationsByProductId(Long productId, Pageable pageable) {
@@ -75,6 +77,7 @@ public class ProductService {
     public Page<VariationResponseDto> getAllVariations(Pageable pageable) {
         return productVariationRepository.findAll(pageable).map(variationMapper::toVariationResponseDto);
     }
+
 
     public Page<VariationResponseDto> getVariationsByCategoryId(Long categoryId, Pageable pageable) {
         return productVariationRepository.findByProductCategoryId(categoryId, pageable).map(variationMapper::toVariationResponseDto);
