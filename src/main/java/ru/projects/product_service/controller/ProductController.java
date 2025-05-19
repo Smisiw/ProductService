@@ -1,5 +1,6 @@
 package ru.projects.product_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody ProductRequestDto productRequestDto) {
+    public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
         return ResponseEntity.ok(productService.createProduct(productRequestDto));
     }
 
@@ -43,7 +44,7 @@ public class ProductController {
 
 
     @PostMapping("/{productId}/variations")
-    public ResponseEntity<VariationResponseDto> addVariation(@PathVariable Long productId, @RequestBody VariationRequestDto variationRequestDto) {
+    public ResponseEntity<VariationResponseDto> addVariation(@PathVariable Long productId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.addVariation(productId, variationRequestDto));
     }
 
@@ -58,7 +59,7 @@ public class ProductController {
     }
 
     @PutMapping("/variations/{variationId}")
-    public ResponseEntity<VariationResponseDto> updateVariation(@PathVariable Long variationId, @RequestBody VariationRequestDto variationRequestDto) {
+    public ResponseEntity<VariationResponseDto> updateVariation(@PathVariable Long variationId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.updateVariation(variationId, variationRequestDto));
     }
 

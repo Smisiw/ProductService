@@ -1,9 +1,11 @@
 package ru.projects.product_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.projects.product_service.DTO.CategoryRequestDto;
+import ru.projects.product_service.DTO.CategoryResponseDto;
 import ru.projects.product_service.DTO.CategoryTreeResponseDto;
 import ru.projects.product_service.service.CategoryService;
 
@@ -16,13 +18,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryTreeResponseDto> create(@RequestBody CategoryRequestDto categoryRequestDto) {
-        CategoryTreeResponseDto category = categoryService.createCategory(categoryRequestDto);
+    public ResponseEntity<CategoryResponseDto> create(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
+        CategoryResponseDto category = categoryService.createCategory(categoryRequestDto);
         return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryTreeResponseDto> update(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<CategoryTreeResponseDto> update(@PathVariable Long id, @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         CategoryTreeResponseDto category = categoryService.updateCategory(id, categoryRequestDto);
         return ResponseEntity.ok(category);
     }

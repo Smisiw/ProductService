@@ -2,7 +2,7 @@ package ru.projects.product_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.projects.product_service.DTO.CategoryRequestDto;
 import ru.projects.product_service.DTO.CategoryResponseDto;
@@ -21,15 +21,15 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Transactional
-    @Secured("ROLE_ADMIN")
-    public CategoryTreeResponseDto createCategory(CategoryRequestDto categoryRequestDto) {
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public CategoryResponseDto createCategory(CategoryRequestDto categoryRequestDto) {
         Category category = categoryMapper.toCategory(categoryRequestDto);
         category = categoryRepository.save(category);
-        return categoryMapper.toCategoryTreeResponseDto(category);
+        return categoryMapper.toCategoryResponseDto(category);
     }
 
     @Transactional
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public CategoryTreeResponseDto updateCategory(Long id, CategoryRequestDto categoryRequestDto) {
         getCategoryOrThrow(id);
         Category category = categoryMapper.toCategory(categoryRequestDto);
@@ -39,7 +39,7 @@ public class CategoryService {
     }
 
     @Transactional
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public void deleteCategory(Long id) {
         Category category = getCategoryOrThrow(id);
         categoryRepository.delete(category);

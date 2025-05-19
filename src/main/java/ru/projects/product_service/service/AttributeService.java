@@ -2,8 +2,8 @@ package ru.projects.product_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import ru.projects.product_service.exception.AttributeAlreadyExistException;
 import ru.projects.product_service.exception.AttributeNotFoundException;
 import ru.projects.product_service.model.Attribute;
 import ru.projects.product_service.repository.AttributeRepository;
@@ -16,10 +16,9 @@ public class AttributeService {
     private final AttributeRepository attributeRepository;
 
     @Transactional
-    @Secured("ROLE_ADMIN")
     public Attribute createAttribute(String name) {
         attributeRepository.findByName(name).ifPresent(attribute -> {
-            throw new RuntimeException("Attribute already exists");
+            throw new AttributeAlreadyExistException("Attribute already exists");
         });
         Attribute attribute = new Attribute();
         attribute.setName(name);
@@ -35,7 +34,6 @@ public class AttributeService {
     }
 
     @Transactional
-    @Secured("ROLE_ADMIN")
     public Attribute updateAttribute(Long id, String name) {
         Attribute attribute = getAttributeOrThrow(id);
         attribute.setName(name);
@@ -43,7 +41,6 @@ public class AttributeService {
     }
 
     @Transactional
-    @Secured("ROLE_ADMIN")
     public void deleteAttribute(Long id) {
         Attribute attribute = getAttributeOrThrow(id);
         attributeRepository.delete(attribute);

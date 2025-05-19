@@ -27,8 +27,10 @@ public abstract class ProductMapper {
                 () -> new RuntimeException("Category not found")
         );
         product.setCategory(category);
-        Set<ProductVariation> variations = variationMapper.toProductVariationSet(productRequestDto.variations());
-        product.setVariations(variations);
+        if (productRequestDto.variations() != null) {
+            Set<ProductVariation> variations = variationMapper.toProductVariationSet(productRequestDto.variations());
+            product.setVariations(variations);
+        }
         return product;
     }
 }

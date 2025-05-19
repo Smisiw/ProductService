@@ -28,37 +28,40 @@ public abstract class VariationMapper {
     public ProductVariation toProductVariation (VariationRequestDto variationRequestDto) {
         ProductVariation productVariation = new ProductVariation();
         productVariation.setName(variationRequestDto.name());
-        productVariation.setDescription(variationRequestDto.description());
+        productVariation.setDescription(variationRequestDto.description() == null ? "" : variationRequestDto.description());
         productVariation.setPrice(variationRequestDto.price());
-        productVariation.setQuantity(variationRequestDto.quantity());
-        productVariation.setReserved(variationRequestDto.reserved());
+        productVariation.setQuantity(variationRequestDto.quantity() == null ? 0 : variationRequestDto.quantity());
+        productVariation.setReserved(variationRequestDto.reserved() == null ? 0 : variationRequestDto.reserved());
 
-        List<Long> attrIds = variationRequestDto.attributes().stream()
-                .map(AttributeValueRequestDto::attributeId)
-                .distinct()
-                .toList();
-
-        Map<Long, Attribute> attributeMap = attributeRepository.findAllById(attrIds)
-                .stream().collect(Collectors.toMap(Attribute::getId, Function.identity()));
-
-        if (attributeMap.size() != attrIds.size()) {
-            Set<Long> foundIds = attributeMap.keySet();
-            List<Long> missingIds = attrIds.stream()
-                    .filter(id -> !foundIds.contains(id))
+        if (variationRequestDto.attributes() != null) {
+            List<Long> attrIds = variationRequestDto.attributes().stream()
+                    .map(AttributeValueRequestDto::attributeId)
+                    .distinct()
                     .toList();
-            throw new RuntimeException("Some attributes not found: " + missingIds);
+
+            Map<Long, Attribute> attributeMap = attributeRepository.findAllById(attrIds)
+                    .stream().collect(Collectors.toMap(Attribute::getId, Function.identity()));
+
+            if (attributeMap.size() != attrIds.size()) {
+                Set<Long> foundIds = attributeMap.keySet();
+                List<Long> missingIds = attrIds.stream()
+                        .filter(id -> !foundIds.contains(id))
+                        .toList();
+                throw new RuntimeException("Some attributes not found: " + missingIds);
+            }
+
+            Set<AttributeValue> attributeValues = variationRequestDto.attributes().stream()
+                    .map(attrDto -> {
+                        Attribute attribute = attributeMap.get(attrDto.attributeId());
+                        AttributeValue value = new AttributeValue();
+                        value.setAttribute(attribute);
+                        value.setValue(attrDto.value());
+                        return value;
+                    })
+                    .collect(Collectors.toSet());
+            productVariation.setAttributeValues(attributeValues);
         }
 
-        Set<AttributeValue> attributeValues = variationRequestDto.attributes().stream()
-                .map(attrDto -> {
-                    Attribute attribute = attributeMap.get(attrDto.attributeId());
-                    AttributeValue value = new AttributeValue();
-                    value.setAttribute(attribute);
-                    value.setValue(attrDto.value());
-                    return value;
-                })
-                .collect(Collectors.toSet());
-        productVariation.setAttributeValues(attributeValues);
         return productVariation;
     }
 

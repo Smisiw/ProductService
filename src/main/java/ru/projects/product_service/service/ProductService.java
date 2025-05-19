@@ -4,10 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.exception.ProductNotFoundException;
@@ -29,11 +28,11 @@ public class ProductService {
     private final VariationMapper variationMapper;
 
     @Transactional
-    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Product product = productMapper.toProduct(productRequestDto, Long.parseLong(userDetails.getUsername()));
+        Long userId = (Long) authentication.getPrincipal();
+        Product product = productMapper.toProduct(productRequestDto, userId);
         return productMapper.toProductResponseDto(productRepository.save(product));
     }
 
@@ -47,7 +46,7 @@ public class ProductService {
     }
 
     @Transactional
-    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public void deleteProductById(Long id) {
         Product product = getProductOrThrow(id);
         validatePermission(id);
@@ -55,7 +54,7 @@ public class ProductService {
     }
 
     @Transactional
-    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public VariationResponseDto addVariation(Long productId, VariationRequestDto variationRequestDto) {
         Product product = getProductOrThrow(productId);
         validatePermission(productId);
@@ -85,13 +84,13 @@ public class ProductService {
 
 
     @Transactional
-    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public void deleteVariationById(Long variationId) {
         productVariationRepository.deleteById(variationId);
     }
 
     @Transactional
-    @Secured(value = {"ROLE_ADMIN, ROLE_SELLER"})
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public VariationResponseDto updateVariation(Long variationId, VariationRequestDto variationRequestDto) {
         productVariationRepository.findById(variationId).orElseThrow(
                 () -> new ProductNotFoundException("Product variation with id " + variationId + " not found")
@@ -109,11 +108,9 @@ public class ProductService {
 
     private void validatePermission(Long sellerId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        boolean isAdmin = userDetails.getAuthorities().stream()
+        Long userId = (Long) auth.getPrincipal();
+        boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         if (!isAdmin && !userId.equals(sellerId)) {
             throw new RolePermissionExceprion("User has no permission to this product");
