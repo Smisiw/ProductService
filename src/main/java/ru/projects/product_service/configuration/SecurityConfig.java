@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/products", "/api/products/variations").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.PUT,"/api/products", "/api/products/variations").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.DELETE,"/api/products", "/api/products/variations").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.POST,"/api/products/variationsByIds").permitAll()
                         .requestMatchers(HttpMethod.GET).permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

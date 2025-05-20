@@ -12,7 +12,7 @@ import ru.projects.product_service.DTO.VariationRequestDto;
 import ru.projects.product_service.DTO.VariationResponseDto;
 import ru.projects.product_service.service.ProductService;
 
-import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -53,8 +53,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllVariations(pageable));
     }
 
-    @PostMapping("/variations-by-ids")
-    public ResponseEntity<List<VariationResponseDto>> getVariationsByIds(@RequestBody List<Long> ids) {
+    @PostMapping("/variationsByIds")
+    public ResponseEntity<Set<VariationResponseDto>> getVariationsByIds(@RequestBody Set<Long> ids) {
         return ResponseEntity.ok(productService.getVariationsByIds(ids));
     }
 

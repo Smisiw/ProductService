@@ -67,5 +67,4 @@ public abstract class VariationMapper {
 
     public abstract Set<VariationResponseDto> toVariationResponseDtoSet (Set<ProductVariation> productVariations);
     public abstract Set<ProductVariation> toProductVariationSet (Set<VariationRequestDto> variationRequestDtos);
-    public abstract List<VariationResponseDto> toVariationResponseDtoList (List<ProductVariation> productVariations);
 }

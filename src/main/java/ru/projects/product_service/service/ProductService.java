@@ -16,7 +16,8 @@ import ru.projects.product_service.mapper.VariationMapper;
 import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.*;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Service
@@ -64,9 +65,9 @@ public class ProductService {
         return variationMapper.toVariationResponseDto(variation);
     }
 
-    public List<VariationResponseDto> getVariationsByIds(List<Long> variationIds) {
-        List<ProductVariation> variations = productVariationRepository.findAllById(variationIds);
-        return variationMapper.toVariationResponseDtoList(variations);
+    public Set<VariationResponseDto> getVariationsByIds(Set<Long> variationIds) {
+        Set<ProductVariation> variations = new HashSet<>(productVariationRepository.findAllById(variationIds));
+        return variationMapper.toVariationResponseDtoSet(variations);
     }
 
     public Page<VariationResponseDto> getVariationsByProductId(Long productId, Pageable pageable) {
