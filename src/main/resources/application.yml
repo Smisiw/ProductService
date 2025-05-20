@@ -27,6 +27,22 @@ spring:
       port: ${REDIS_PORT:6379}
       timeout: 60000
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+    diskspace:
+      enabled: true
+    db:
+      enabled: true
+
 eureka:
   client:
     service-url:
