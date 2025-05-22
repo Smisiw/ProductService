@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.projects.product_service.DTO.*;
+import ru.projects.product_service.exception.NotRelevantProductInfoException;
 import ru.projects.product_service.exception.ProductNotFoundException;
 import ru.projects.product_service.exception.RolePermissionExceprion;
 import ru.projects.product_service.mapper.ProductMapper;
@@ -17,7 +18,10 @@ import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.*;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -100,6 +104,30 @@ public class ProductService {
         variation.setId(variationId);
         productVariationRepository.save(variation);
         return variationMapper.toVariationResponseDto(variation);
+    }
+
+    @Transactional
+    public void checkAndReserve(Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
+        Set<Long> productVariationsIds = checkAndReserveItemRequestDtos.stream()
+                .map(CheckAndReserveItemRequestDto::productVariationId)
+                .collect(Collectors.toSet());
+        Map<Long, CheckAndReserveItemRequestDto> requestDtoMap = checkAndReserveItemRequestDtos.stream()
+                .collect(Collectors.toMap(CheckAndReserveItemRequestDto::productVariationId, Function.identity()));
+        Set<ProductVariation> productVariations = new HashSet<>(productVariationRepository.findAllById(productVariationsIds));
+        if (productVariations.size() != checkAndReserveItemRequestDtos.size()) {
+            throw new NotRelevantProductInfoException("Some products are unavailable");
+        }
+        productVariations.forEach(productVariation -> {
+            CheckAndReserveItemRequestDto requestDto = requestDtoMap.get(productVariation.getId());
+            if (requestDto.unitPrice().compareTo(productVariation.getPrice()) != 0) {
+                throw new NotRelevantProductInfoException("The price of some products has changed");
+            }
+            if (requestDto.quantity() > productVariation.getQuantity() - productVariation.getReserved()) {
+                throw new NotRelevantProductInfoException("Some products are unavailable");
+            }
+            productVariation.setReserved(productVariation.getReserved() + requestDto.quantity());
+        });
+        productVariationRepository.saveAll(productVariations);
     }
 
     private Product getProductOrThrow(Long productId) {

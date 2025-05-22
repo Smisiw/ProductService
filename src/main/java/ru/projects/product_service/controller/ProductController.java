@@ -6,10 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.projects.product_service.DTO.ProductRequestDto;
-import ru.projects.product_service.DTO.ProductResponseDto;
-import ru.projects.product_service.DTO.VariationRequestDto;
-import ru.projects.product_service.DTO.VariationResponseDto;
+import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.service.ProductService;
 
 import java.util.Set;
@@ -77,5 +74,11 @@ public class ProductController {
     @GetMapping("/category/{id}")
     public ResponseEntity<Page<VariationResponseDto>> getVariationsByCategory(@PathVariable Long id, Pageable pageable) {
         return ResponseEntity.ok(productService.getVariationsByCategoryId(id, pageable));
+    }
+
+    @PostMapping("/checkAndReserve")
+    public ResponseEntity<String> checkAndReserve(@RequestBody Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
+        productService.checkAndReserve(checkAndReserveItemRequestDtos);
+        return ResponseEntity.ok("Products reserved successfully");
     }
 }
