@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.projects.product_service.DTO.ProductRequestDto;
 import ru.projects.product_service.DTO.ProductResponseDto;
+import ru.projects.product_service.exception.CategoryNotFoundException;
 import ru.projects.product_service.model.Category;
 import ru.projects.product_service.model.Product;
 import ru.projects.product_service.model.ProductVariation;
@@ -20,13 +21,14 @@ public abstract class ProductMapper {
 
     public abstract ProductResponseDto toProductResponseDto(Product product);
     public Product toProduct(ProductRequestDto productRequestDto, Long sellerId) {
-        Product product = new Product();
-        product.setSellerId(sellerId);
-        product.setName(productRequestDto.name());
         Category category = categoryRepository.findById(productRequestDto.categoryId()).orElseThrow(
-                () -> new RuntimeException("Category not found")
+                () -> new CategoryNotFoundException("Category not found")
         );
-        product.setCategory(category);
+        Product product = new Product(
+                sellerId,
+                category
+        );
+        product.setName(productRequestDto.name());
         if (productRequestDto.variations() != null) {
             Set<ProductVariation> variations = variationMapper.toProductVariationSet(productRequestDto.variations());
             product.setVariations(variations);

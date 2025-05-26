@@ -20,8 +20,7 @@ public class AttributeService {
         attributeRepository.findByName(name).ifPresent(attribute -> {
             throw new AttributeAlreadyExistException("Attribute already exists");
         });
-        Attribute attribute = new Attribute();
-        attribute.setName(name);
+        Attribute attribute = new Attribute(name);
         return attributeRepository.save(attribute);
     }
 

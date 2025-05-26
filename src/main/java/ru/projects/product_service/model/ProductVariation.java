@@ -14,17 +14,24 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = "product")
 @Table(name = "product_variations")
 @RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductVariation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(nullable = false)
+    @NonNull
     private String name;
     private String description;
     @Column(nullable = false)
+    @NonNull
     private BigDecimal price;
+    @Column(nullable = false)
+    @NonNull
     private Integer quantity;
+    @Column(nullable = false)
+    @NonNull
     private Integer reserved;
 
     @ManyToOne

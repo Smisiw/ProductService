@@ -16,11 +16,18 @@ import java.util.Set;
 @ToString(exclude = "parent")
 @EqualsAndHashCode(exclude = "parent")
 @Table(name = "categories")
+@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
+    @NonNull
     private String name;
+    @Column(nullable = false)
+    @NonNull
+    private String routeLocation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

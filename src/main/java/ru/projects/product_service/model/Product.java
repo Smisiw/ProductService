@@ -13,6 +13,7 @@ import java.util.Set;
 @EqualsAndHashCode
 @Table(name = "products")
 @RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
 
     @Id
@@ -22,10 +23,12 @@ public class Product {
     private String name;
 
     @Column(name = "seller_id", nullable = false)
+    @NonNull
     private Long sellerId;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @NonNull
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

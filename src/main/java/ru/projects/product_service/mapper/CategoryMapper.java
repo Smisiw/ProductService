@@ -22,8 +22,10 @@ public abstract class CategoryMapper {
     public abstract CategoryResponseDto toCategoryResponseDto(Category category);
     public abstract CategoryTreeResponseDto toCategoryTreeResponseDto(Category category);
     public Category toCategory(CategoryRequestDto categoryRequestDto) {
-        Category category = new Category();
-        category.setName(categoryRequestDto.name());
+        Category category = new Category(
+                categoryRequestDto.name(),
+                categoryRequestDto.routeLocation()
+        );
         if (categoryRequestDto.parentId() != null) {
             Category parent = categoryRepository.findById(categoryRequestDto.parentId()).orElseThrow(
                     () -> new RuntimeException("Parent category with id " + categoryRequestDto.parentId() + " not found")

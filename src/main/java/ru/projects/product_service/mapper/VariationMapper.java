@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.projects.product_service.DTO.AttributeValueRequestDto;
 import ru.projects.product_service.DTO.VariationRequestDto;
 import ru.projects.product_service.DTO.VariationResponseDto;
+import ru.projects.product_service.exception.AttributeNotFoundException;
 import ru.projects.product_service.model.Attribute;
 import ru.projects.product_service.model.AttributeValue;
 import ru.projects.product_service.model.ProductVariation;
@@ -26,12 +27,13 @@ public abstract class VariationMapper {
     public abstract VariationResponseDto toVariationResponseDto (ProductVariation productVariation);
 
     public ProductVariation toProductVariation (VariationRequestDto variationRequestDto) {
-        ProductVariation productVariation = new ProductVariation();
-        productVariation.setName(variationRequestDto.name());
+        ProductVariation productVariation = new ProductVariation(
+                variationRequestDto.name(),
+                variationRequestDto.price(),
+                variationRequestDto.quantity() == null ? 0 : variationRequestDto.quantity(),
+                variationRequestDto.reserved() == null ? 0 : variationRequestDto.reserved()
+        );
         productVariation.setDescription(variationRequestDto.description() == null ? "" : variationRequestDto.description());
-        productVariation.setPrice(variationRequestDto.price());
-        productVariation.setQuantity(variationRequestDto.quantity() == null ? 0 : variationRequestDto.quantity());
-        productVariation.setReserved(variationRequestDto.reserved() == null ? 0 : variationRequestDto.reserved());
 
         if (variationRequestDto.attributes() != null) {
             List<Long> attrIds = variationRequestDto.attributes().stream()
@@ -47,16 +49,13 @@ public abstract class VariationMapper {
                 List<Long> missingIds = attrIds.stream()
                         .filter(id -> !foundIds.contains(id))
                         .toList();
-                throw new RuntimeException("Some attributes not found: " + missingIds);
+                throw new AttributeNotFoundException("Some attributes not found: " + missingIds);
             }
 
             Set<AttributeValue> attributeValues = variationRequestDto.attributes().stream()
                     .map(attrDto -> {
                         Attribute attribute = attributeMap.get(attrDto.attributeId());
-                        AttributeValue value = new AttributeValue();
-                        value.setAttribute(attribute);
-                        value.setValue(attrDto.value());
-                        return value;
+                        return new AttributeValue(attrDto.value(), attribute);
                     })
                     .collect(Collectors.toSet());
             productVariation.setAttributeValues(attributeValues);
