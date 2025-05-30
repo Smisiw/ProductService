@@ -65,11 +65,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotRelevantProductInfo(NotRelevantProductInfoException exception) {
         ErrorResponse errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.CONFLICT.value(),
                 "NotRelevantProductInfoException",
                 exception.getMessage()
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({AttributeAlreadyExistException.class})
@@ -100,6 +100,17 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "CategoryNotFoundException",
+                exception.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({ProductReservationException.class})
+    public ResponseEntity<ErrorResponse> handleProductReservationException(ProductReservationException exception) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "ProductReservationException",
                 exception.getMessage()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
