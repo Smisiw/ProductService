@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.exception.NotRelevantProductInfoException;
 import ru.projects.product_service.exception.ProductNotFoundException;
+import ru.projects.product_service.exception.ProductReservationException;
 import ru.projects.product_service.exception.RolePermissionExceprion;
 import ru.projects.product_service.mapper.ProductMapper;
 import ru.projects.product_service.mapper.VariationMapper;
@@ -128,6 +129,18 @@ public class ProductService {
             productVariation.setReserved(productVariation.getReserved() + requestDto.quantity());
         });
         productVariationRepository.saveAll(productVariations);
+    }
+
+    @Transactional
+    public void cancelReservation(OrderItemCancelledEvent orderItemCancelledEvent) {
+        ProductVariation variation = productVariationRepository.findById(orderItemCancelledEvent.productVariationId()).orElseThrow(
+                () -> new ProductNotFoundException("Product variation with id " + orderItemCancelledEvent.productVariationId() + " not found")
+        );
+        if (variation.getReserved() < orderItemCancelledEvent.quantity()) {
+            throw new ProductReservationException("Reserved products count less than the necessary");
+        }
+        variation.setReserved(variation.getReserved() - orderItemCancelledEvent.quantity());
+        productVariationRepository.save(variation);
     }
 
     private Product getProductOrThrow(Long productId) {
