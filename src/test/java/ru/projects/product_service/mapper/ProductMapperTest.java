@@ -17,6 +17,7 @@ import ru.projects.product_service.repository.CategoryRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,13 +40,13 @@ class ProductMapperTest {
         VariationRequestDto variationDto = new VariationRequestDto(
                 "Вариант", null, new BigDecimal("100.0"), 5, 0, Set.of()
         );
-        ProductRequestDto dto = new ProductRequestDto(1L, "Телевизор", Set.of(variationDto));
+        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"), "Телевизор", Set.of(variationDto));
 
         Category category = new Category(
                 "Электроника",
                 "electronics"
         );
-        category.setId(1L);
+        category.setId(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"));
 
         ProductVariation variation = new ProductVariation(
                 "Вариант",
@@ -54,14 +55,14 @@ class ProductMapperTest {
                 0
                 );
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"))).thenReturn(Optional.of(category));
         when(variationMapper.toProductVariationSet(Set.of(variationDto)))
                 .thenReturn(Set.of(variation));
 
-        Product product = productMapper.toProduct(dto, 99L);
+        Product product = productMapper.toProduct(dto, UUID.fromString("938d60e0-2830-44ea-8073-ec9b5e20ed8d"));
 
         assertEquals("Телевизор", product.getName());
-        assertEquals(99L, product.getSellerId());
+        assertEquals(UUID.fromString("938d60e0-2830-44ea-8073-ec9b5e20ed8d"), product.getSellerId());
         assertEquals(category, product.getCategory());
         assertEquals(1, product.getVariations().size());
         assertTrue(product.getVariations().contains(variation));
@@ -69,11 +70,11 @@ class ProductMapperTest {
 
     @Test
     void toProduct_throws_whenCategoryNotFound() {
-        ProductRequestDto dto = new ProductRequestDto(100L, "Неизвестный", Set.of());
+        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("48c87913-3af6-4f6f-9c15-68510ec13ff3"), "Неизвестный", Set.of());
 
-        when(categoryRepository.findById(100L)).thenReturn(Optional.empty());
+        when(categoryRepository.findById(UUID.fromString("48c87913-3af6-4f6f-9c15-68510ec13ff3"))).thenReturn(Optional.empty());
 
-        assertThrows(CategoryNotFoundException.class, () -> productMapper.toProduct(dto, 1L));
+        assertThrows(CategoryNotFoundException.class, () -> productMapper.toProduct(dto, UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183")));
     }
 
     @Test

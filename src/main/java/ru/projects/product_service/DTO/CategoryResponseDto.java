@@ -1,7 +1,9 @@
 package ru.projects.product_service.DTO;
 
+import java.util.UUID;
+
 public record CategoryResponseDto(
-        Long id,
+        UUID id,
         String routeLocation,
         String name
 ) {

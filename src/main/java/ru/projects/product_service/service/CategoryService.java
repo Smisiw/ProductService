@@ -13,6 +13,7 @@ import ru.projects.product_service.model.Category;
 import ru.projects.product_service.repository.CategoryRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class CategoryService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public CategoryTreeResponseDto updateCategory(Long id, CategoryRequestDto categoryRequestDto) {
+    public CategoryTreeResponseDto updateCategory(UUID id, CategoryRequestDto categoryRequestDto) {
         getCategoryOrThrow(id);
         Category category = categoryMapper.toCategory(categoryRequestDto);
         category.setId(id);
@@ -40,7 +41,7 @@ public class CategoryService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public void deleteCategory(Long id) {
+    public void deleteCategory(UUID id) {
         Category category = getCategoryOrThrow(id);
         categoryRepository.delete(category);
     }
@@ -49,12 +50,12 @@ public class CategoryService {
         return categoryMapper.toCategoryTreeResponseDtoList(categoryRepository.findByParentIsNull());
     }
 
-    public CategoryResponseDto getCategoryById(Long id) {
+    public CategoryResponseDto getCategoryById(UUID id) {
         Category category = getCategoryOrThrow(id);
         return categoryMapper.toCategoryResponseDto(category);
     }
 
-    private Category getCategoryOrThrow(Long id) {
+    private Category getCategoryOrThrow(UUID id) {
         return categoryRepository.findById(id).orElseThrow(
                 () -> new CategoryNotFoundException("Category with id " + id + " not found")
         );

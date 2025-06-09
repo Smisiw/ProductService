@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,11 +39,14 @@ class VariationMapperTest {
     void toProductVariation_successfulMapping_withAttributes() {
         VariationRequestDto dto = new VariationRequestDto(
                 "Вариант A", "Описание", new BigDecimal("99.99"), 10, 2,
-                Set.of(new AttributeValueRequestDto(1L, "Red"), new AttributeValueRequestDto(2L, "XL"))
+                Set.of(
+                        new AttributeValueRequestDto(UUID.fromString("a041cfc7-2eb0-45b7-b2e6-aa008ad2f001"), "Red"),
+                        new AttributeValueRequestDto(UUID.fromString("dc2a3f64-21f4-43fa-a06e-3c36fa9e8bad"), "XL")
+                )
         );
 
-        Attribute attr1 = new Attribute("Цвет"); attr1.setId(1L);
-        Attribute attr2 = new Attribute("Размер"); attr2.setId(2L);
+        Attribute attr1 = new Attribute("Цвет"); attr1.setId(UUID.fromString("a041cfc7-2eb0-45b7-b2e6-aa008ad2f001"));
+        Attribute attr2 = new Attribute("Размер"); attr2.setId(UUID.fromString("dc2a3f64-21f4-43fa-a06e-3c36fa9e8bad"));
 
         when(attributeRepository.findAllById(any()))
                 .thenReturn(List.of(attr1, attr2));
@@ -56,21 +60,21 @@ class VariationMapperTest {
         assertEquals(2, result.getReserved());
 
         assertEquals(2, result.getAttributeValues().size());
-        Map<Long, String> attrMap = result.getAttributeValues().stream()
+        Map<UUID, String> attrMap = result.getAttributeValues().stream()
                 .collect(Collectors.toMap(a -> a.getAttribute().getId(), AttributeValue::getValue));
 
-        assertEquals("Red", attrMap.get(1L));
-        assertEquals("XL", attrMap.get(2L));
+        assertEquals("Red", attrMap.get(UUID.fromString("a041cfc7-2eb0-45b7-b2e6-aa008ad2f001")));
+        assertEquals("XL", attrMap.get(UUID.fromString("dc2a3f64-21f4-43fa-a06e-3c36fa9e8bad")));
     }
 
     @Test
     void toProductVariation_throws_whenAttributeMissing() {
         VariationRequestDto dto = new VariationRequestDto(
                 "Тест", null, new BigDecimal("10.0"), 1, 0,
-                Set.of(new AttributeValueRequestDto(99L, "???"))
+                Set.of(new AttributeValueRequestDto(UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707"), "???"))
         );
 
-        when(attributeRepository.findAllById(List.of(99L)))
+        when(attributeRepository.findAllById(List.of(UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707"))))
                 .thenReturn(List.of());
 
         assertThrows(AttributeNotFoundException.class, () -> variationMapper.toProductVariation(dto));

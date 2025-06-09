@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -20,8 +17,8 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
     @Column(nullable = false)
     @NonNull
     private String name;

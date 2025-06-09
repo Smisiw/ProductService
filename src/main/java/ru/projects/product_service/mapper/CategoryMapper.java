@@ -11,6 +11,7 @@ import ru.projects.product_service.repository.AttributeRepository;
 import ru.projects.product_service.repository.CategoryRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public abstract class CategoryMapper {
@@ -33,7 +34,7 @@ public abstract class CategoryMapper {
             category.setParent(parent);
         }
         if (categoryRequestDto.attributeIds() != null) {
-            for (Long attributeId : categoryRequestDto.attributeIds()) {
+            for (UUID attributeId : categoryRequestDto.attributeIds()) {
                 Attribute attribute = attributeRepository.findById(attributeId).orElseThrow(
                         () -> new RuntimeException("Attribute with id " + attributeId + " not found")
                 );

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,14 +18,14 @@ import java.util.Set;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     private String name;
 
     @Column(name = "seller_id", nullable = false)
     @NonNull
-    private Long sellerId;
+    private UUID sellerId;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

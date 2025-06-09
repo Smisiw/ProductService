@@ -1,7 +1,9 @@
 package ru.projects.product_service.DTO;
 
+import java.util.UUID;
+
 public record AttributeValueResponseDto(
-        Long attributeId,
+        UUID attributeId,
         String attributeName,
         String value
 ) {

@@ -6,6 +6,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -18,8 +19,8 @@ import java.util.Set;
 public class ProductVariation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
     @Column(nullable = false)
     @NonNull
     private String name;

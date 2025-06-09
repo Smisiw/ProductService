@@ -19,6 +19,7 @@ import ru.projects.product_service.repository.ProductVariationRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +41,7 @@ class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-    private final Long sellerId = 1L;
+    private final UUID sellerId = UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707");
 
     @BeforeEach
     void setUp() {
@@ -52,7 +53,7 @@ class ProductServiceTest {
     @Test
     void createProduct_successForSeller_withMultipleAttributes() {
         ProductRequestDto requestDto = new ProductRequestDto(
-                1L,
+                UUID.fromString("7ba1cdb1-2a83-435f-9024-36f069d1c7d5"),
                 "Смартфон Samsung Galaxy",
                 Set.of(new VariationRequestDto(
                         "Смартфон Samsung Galaxy / 8GB RAM / 256GB ROM",
@@ -61,8 +62,8 @@ class ProductServiceTest {
                         50,
                         0,
                         Set.of(
-                                new AttributeValueRequestDto(1L, "8GB"),
-                                new AttributeValueRequestDto(2L, "256GB")
+                                new AttributeValueRequestDto(UUID.fromString("65418ffa-490d-4cef-86f0-52ca75bd983d"), "8GB"),
+                                new AttributeValueRequestDto(UUID.fromString("b871dee2-4625-4b86-b6ca-9806b49b231e"), "256GB")
                         )
                 ))
         );
@@ -71,13 +72,13 @@ class ProductServiceTest {
                 "Смартфоны",
                 "smartphones"
         );
-        category.setId(1L);
+        category.setId(UUID.fromString("7ba1cdb1-2a83-435f-9024-36f069d1c7d5"));
 
         Attribute ramAttr = new Attribute("Оперативная память");
-        ramAttr.setId(1L);
+        ramAttr.setId(UUID.fromString("65418ffa-490d-4cef-86f0-52ca75bd983d"));
 
         Attribute storageAttr = new Attribute("Внутренняя память");
-        storageAttr.setId(2L);
+        storageAttr.setId(UUID.fromString("b871dee2-4625-4b86-b6ca-9806b49b231e"));
 
         ProductVariation variation = new ProductVariation(
                 "Смартфон Samsung Galaxy / 8GB RAM / 256GB ROM",
@@ -95,7 +96,7 @@ class ProductServiceTest {
         product.setVariations(Set.of(variation));
 
         ProductResponseDto productResponse = new ProductResponseDto(
-                101L,
+                UUID.fromString("4a2d4efb-e2bc-47bc-9da5-4efd17229e04"),
                 "Смартфон Samsung Galaxy",
                 sellerId,
                 new CategoryResponseDto(
@@ -105,8 +106,8 @@ class ProductServiceTest {
                 ),
                 Set.of(
                         new VariationResponseDto(
-                                201L,
-                                101L,
+                                UUID.fromString("737b8979-14f1-427c-8974-c8dc2a79c5bc"),
+                                UUID.fromString("4a2d4efb-e2bc-47bc-9da5-4efd17229e04"),
                                 variation.getName(),
                                 variation.getDescription(),
                                 variation.getQuantity(),
@@ -132,12 +133,9 @@ class ProductServiceTest {
         when(productRepository.save(any(Product.class)))
                 .thenAnswer(invocation -> {
                     Product p = invocation.getArgument(0);
-                    p.setId(101L);
+                    p.setId(UUID.fromString("4a2d4efb-e2bc-47bc-9da5-4efd17229e04"));
                     for (ProductVariation v : p.getVariations()) {
-                        v.setId(201L);
-                        for (AttributeValue a : v.getAttributeValues()) {
-                            a.setId(301L);
-                        }
+                        v.setId(UUID.fromString("737b8979-14f1-427c-8974-c8dc2a79c5bc"));
                     }
                     return p;
                 });
@@ -147,7 +145,7 @@ class ProductServiceTest {
 
         assertEquals("Смартфон Samsung Galaxy", response.name());
         assertEquals(sellerId, response.sellerId());
-        assertEquals(1L, response.category().id());
+        assertEquals(UUID.fromString("7ba1cdb1-2a83-435f-9024-36f069d1c7d5"), response.category().id());
         assertEquals(1, response.variations().size());
 
         VariationResponseDto variationResponse = response.variations().iterator().next();

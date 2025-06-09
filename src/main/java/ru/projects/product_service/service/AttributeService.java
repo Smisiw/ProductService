@@ -9,6 +9,7 @@ import ru.projects.product_service.model.Attribute;
 import ru.projects.product_service.repository.AttributeRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class AttributeService {
         return attributeRepository.save(attribute);
     }
 
-    public Attribute getAttributeById(Long id) {
+    public Attribute getAttributeById(UUID id) {
         return getAttributeOrThrow(id);
     }
 
@@ -33,19 +34,19 @@ public class AttributeService {
     }
 
     @Transactional
-    public Attribute updateAttribute(Long id, String name) {
+    public Attribute updateAttribute(UUID id, String name) {
         Attribute attribute = getAttributeOrThrow(id);
         attribute.setName(name);
         return attributeRepository.save(attribute);
     }
 
     @Transactional
-    public void deleteAttribute(Long id) {
+    public void deleteAttribute(UUID id) {
         Attribute attribute = getAttributeOrThrow(id);
         attributeRepository.delete(attribute);
     }
 
-    private Attribute getAttributeOrThrow(Long id) {
+    private Attribute getAttributeOrThrow(UUID id) {
         return attributeRepository.findById(id).orElseThrow(
                 () -> new AttributeNotFoundException("Attribute with id " + id + " not found")
         );

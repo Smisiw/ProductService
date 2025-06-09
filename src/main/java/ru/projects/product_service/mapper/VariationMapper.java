@@ -15,6 +15,7 @@ import ru.projects.product_service.repository.AttributeRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,17 +37,17 @@ public abstract class VariationMapper {
         productVariation.setDescription(variationRequestDto.description() == null ? "" : variationRequestDto.description());
 
         if (variationRequestDto.attributes() != null) {
-            List<Long> attrIds = variationRequestDto.attributes().stream()
+            List<UUID> attrIds = variationRequestDto.attributes().stream()
                     .map(AttributeValueRequestDto::attributeId)
                     .distinct()
                     .toList();
 
-            Map<Long, Attribute> attributeMap = attributeRepository.findAllById(attrIds)
+            Map<UUID, Attribute> attributeMap = attributeRepository.findAllById(attrIds)
                     .stream().collect(Collectors.toMap(Attribute::getId, Function.identity()));
 
             if (attributeMap.size() != attrIds.size()) {
-                Set<Long> foundIds = attributeMap.keySet();
-                List<Long> missingIds = attrIds.stream()
+                Set<UUID> foundIds = attributeMap.keySet();
+                List<UUID> missingIds = attrIds.stream()
                         .filter(id -> !foundIds.contains(id))
                         .toList();
                 throw new AttributeNotFoundException("Some attributes not found: " + missingIds);
