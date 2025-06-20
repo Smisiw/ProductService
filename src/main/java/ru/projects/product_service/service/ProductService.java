@@ -21,6 +21,7 @@ import ru.projects.product_service.repository.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class ProductService {
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = (Long) authentication.getPrincipal();
+        UUID userId = (UUID) authentication.getPrincipal();
         Product product = productMapper.toProduct(productRequestDto, userId);
         return productMapper.toProductResponseDto(productRepository.save(product));
     }
@@ -46,14 +47,14 @@ public class ProductService {
         return productRepository.findAll(pageable).map(productMapper::toProductResponseDto);
     }
 
-    public ProductResponseDto getProductById(Long id) {
+    public ProductResponseDto getProductById(UUID id) {
         Product product = getProductOrThrow(id);
         return productMapper.toProductResponseDto(product);
     }
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
-    public void deleteProductById(Long id) {
+    public void deleteProductById(UUID id) {
         Product product = getProductOrThrow(id);
         validatePermission(id);
         productRepository.delete(product);
@@ -61,7 +62,7 @@ public class ProductService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
-    public VariationResponseDto addVariation(Long productId, VariationRequestDto variationRequestDto) {
+    public VariationResponseDto addVariation(UUID productId, VariationRequestDto variationRequestDto) {
         Product product = getProductOrThrow(productId);
         validatePermission(productId);
         ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
@@ -70,12 +71,12 @@ public class ProductService {
         return variationMapper.toVariationResponseDto(variation);
     }
 
-    public Set<VariationResponseDto> getVariationsByIds(Set<Long> variationIds) {
+    public Set<VariationResponseDto> getVariationsByIds(Set<UUID> variationIds) {
         Set<ProductVariation> variations = new HashSet<>(productVariationRepository.findAllById(variationIds));
         return variationMapper.toVariationResponseDtoSet(variations);
     }
 
-    public Page<VariationResponseDto> getVariationsByProductId(Long productId, Pageable pageable) {
+    public Page<VariationResponseDto> getVariationsByProductId(UUID productId, Pageable pageable) {
         return productVariationRepository.findByProductId(productId, pageable).map(variationMapper::toVariationResponseDto);
     }
 
@@ -84,20 +85,20 @@ public class ProductService {
     }
 
 
-    public Page<VariationResponseDto> getVariationsByCategoryId(Long categoryId, Pageable pageable) {
+    public Page<VariationResponseDto> getVariationsByCategoryId(UUID categoryId, Pageable pageable) {
         return productVariationRepository.findByProductCategoryId(categoryId, pageable).map(variationMapper::toVariationResponseDto);
     }
 
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
-    public void deleteVariationById(Long variationId) {
+    public void deleteVariationById(UUID variationId) {
         productVariationRepository.deleteById(variationId);
     }
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
-    public VariationResponseDto updateVariation(Long variationId, VariationRequestDto variationRequestDto) {
+    public VariationResponseDto updateVariation(UUID variationId, VariationRequestDto variationRequestDto) {
         productVariationRepository.findById(variationId).orElseThrow(
                 () -> new ProductNotFoundException("Product variation with id " + variationId + " not found")
         );
@@ -109,10 +110,10 @@ public class ProductService {
 
     @Transactional
     public void checkAndReserve(Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
-        Set<Long> productVariationsIds = checkAndReserveItemRequestDtos.stream()
+        Set<UUID> productVariationsIds = checkAndReserveItemRequestDtos.stream()
                 .map(CheckAndReserveItemRequestDto::productVariationId)
                 .collect(Collectors.toSet());
-        Map<Long, CheckAndReserveItemRequestDto> requestDtoMap = checkAndReserveItemRequestDtos.stream()
+        Map<UUID, CheckAndReserveItemRequestDto> requestDtoMap = checkAndReserveItemRequestDtos.stream()
                 .collect(Collectors.toMap(CheckAndReserveItemRequestDto::productVariationId, Function.identity()));
         Set<ProductVariation> productVariations = new HashSet<>(productVariationRepository.findAllById(productVariationsIds));
         if (productVariations.size() != checkAndReserveItemRequestDtos.size()) {
@@ -143,14 +144,14 @@ public class ProductService {
         productVariationRepository.save(variation);
     }
 
-    private Product getProductOrThrow(Long productId) {
+    private Product getProductOrThrow(UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
     }
 
-    private void validatePermission(Long sellerId) {
+    private void validatePermission(UUID sellerId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = (Long) auth.getPrincipal();
+        UUID userId = (UUID) auth.getPrincipal();
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 

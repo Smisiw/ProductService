@@ -13,20 +13,21 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AttributeValue {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private AttributeValueId id;
+
     @Column(nullable = false)
     @NonNull
     private String value;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @MapsId("attributeId")
     @JoinColumn(name = "attribute_id")
     @NonNull
     private Attribute attribute;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @MapsId("variationId")
     @JoinColumn(name = "variation_id")
     private ProductVariation variation;
-
 }

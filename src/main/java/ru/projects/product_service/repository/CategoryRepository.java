@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.projects.product_service.model.Category;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByParentIsNull();
 }

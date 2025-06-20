@@ -8,6 +8,7 @@ import ru.projects.product_service.model.Attribute;
 import ru.projects.product_service.service.AttributeService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/attributes")
@@ -27,19 +28,19 @@ public class AttributeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Attribute> getById(@PathVariable Long id) {
+    public ResponseEntity<Attribute> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(attributeService.getAttributeById(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Attribute> update(@PathVariable Long id, @RequestBody Attribute attribute) {
+    public ResponseEntity<Attribute> update(@PathVariable UUID id, @RequestBody Attribute attribute) {
         return ResponseEntity.ok(attributeService.updateAttribute(id, attribute.getName()));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
         attributeService.deleteAttribute(id);
         return ResponseEntity.ok("Deleted");
     }

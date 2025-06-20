@@ -10,6 +10,7 @@ import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.service.ProductService;
 
 import java.util.Set;
+import java.util.UUID;
 
 
 @RestController
@@ -24,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponseDto> getProductById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
@@ -34,14 +35,14 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProductById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProductById(@PathVariable UUID id) {
         productService.deleteProductById(id);
         return ResponseEntity.ok("Deleted product with id " + id);
     }
 
 
     @PostMapping("/{productId}/variations")
-    public ResponseEntity<VariationResponseDto> addVariation(@PathVariable Long productId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
+    public ResponseEntity<VariationResponseDto> addVariation(@PathVariable UUID productId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.addVariation(productId, variationRequestDto));
     }
 
@@ -51,28 +52,28 @@ public class ProductController {
     }
 
     @PostMapping("/variationsByIds")
-    public ResponseEntity<Set<VariationResponseDto>> getVariationsByIds(@RequestBody Set<Long> ids) {
+    public ResponseEntity<Set<VariationResponseDto>> getVariationsByIds(@RequestBody Set<UUID> ids) {
         return ResponseEntity.ok(productService.getVariationsByIds(ids));
     }
 
     @PutMapping("/variations/{variationId}")
-    public ResponseEntity<VariationResponseDto> updateVariation(@PathVariable Long variationId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
+    public ResponseEntity<VariationResponseDto> updateVariation(@PathVariable UUID variationId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.updateVariation(variationId, variationRequestDto));
     }
 
     @GetMapping("/{productId}/variations")
-    public ResponseEntity<Page<VariationResponseDto>> getVariations(@PathVariable Long productId, Pageable pageable) {
+    public ResponseEntity<Page<VariationResponseDto>> getVariations(@PathVariable UUID productId, Pageable pageable) {
         return ResponseEntity.ok(productService.getVariationsByProductId(productId, pageable));
     }
 
     @DeleteMapping("/variations/{variationId}")
-    public ResponseEntity<String> deleteVariation(@PathVariable Long variationId) {
+    public ResponseEntity<String> deleteVariation(@PathVariable UUID variationId) {
         productService.deleteVariationById(variationId);
         return ResponseEntity.ok("Deleted variation with id " + variationId);
     }
 
     @GetMapping("/category/{id}")
-    public ResponseEntity<Page<VariationResponseDto>> getVariationsByCategory(@PathVariable Long id, Pageable pageable) {
+    public ResponseEntity<Page<VariationResponseDto>> getVariationsByCategory(@PathVariable UUID id, Pageable pageable) {
         return ResponseEntity.ok(productService.getVariationsByCategoryId(id, pageable));
     }
 

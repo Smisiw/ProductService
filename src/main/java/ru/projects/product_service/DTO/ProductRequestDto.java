@@ -4,10 +4,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
+import java.util.UUID;
 
 public record ProductRequestDto(
         @NotNull
-        Long categoryId,
+        UUID categoryId,
         @NotNull
         String name,
         @Valid

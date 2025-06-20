@@ -11,6 +11,7 @@ import ru.projects.product_service.model.ProductVariation;
 import ru.projects.product_service.repository.CategoryRepository;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring", uses = {VariationMapper.class, CategoryMapper.class})
 public abstract class ProductMapper {
@@ -20,7 +21,7 @@ public abstract class ProductMapper {
     private VariationMapper variationMapper;
 
     public abstract ProductResponseDto toProductResponseDto(Product product);
-    public Product toProduct(ProductRequestDto productRequestDto, Long sellerId) {
+    public Product toProduct(ProductRequestDto productRequestDto, UUID sellerId) {
         Category category = categoryRepository.findById(productRequestDto.categoryId()).orElseThrow(
                 () -> new CategoryNotFoundException("Category not found")
         );

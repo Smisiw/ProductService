@@ -1,11 +1,12 @@
 package ru.projects.product_service.DTO;
 
 import java.util.Set;
+import java.util.UUID;
 
 public record ProductResponseDto(
-        Long id,
+        UUID id,
         String name,
-        Long sellerId,
+        UUID sellerId,
         CategoryResponseDto category,
         Set<VariationResponseDto> variations
 ) {

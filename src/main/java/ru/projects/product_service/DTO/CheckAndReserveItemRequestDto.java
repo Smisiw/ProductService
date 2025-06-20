@@ -1,9 +1,10 @@
 package ru.projects.product_service.DTO;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public record CheckAndReserveItemRequestDto(
-        Long productVariationId,
+        UUID productVariationId,
         Integer quantity,
         BigDecimal unitPrice
 ) {

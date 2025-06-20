@@ -10,6 +10,7 @@ import ru.projects.product_service.DTO.CategoryTreeResponseDto;
 import ru.projects.product_service.service.CategoryService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -24,13 +25,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryTreeResponseDto> update(@PathVariable Long id, @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<CategoryTreeResponseDto> update(@PathVariable UUID id, @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         CategoryTreeResponseDto category = categoryService.updateCategory(id, categoryRequestDto);
         return ResponseEntity.ok(category);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok("Category " + id + " was successfully deleted");
     }
