@@ -1,5 +1,6 @@
 package ru.projects.product_service.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class AttributeController {
     private final AttributeService attributeService;
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Attribute> create(@RequestBody Attribute attribute) {
@@ -32,12 +34,14 @@ public class AttributeController {
         return ResponseEntity.ok(attributeService.getAttributeById(id));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Attribute> update(@PathVariable UUID id, @RequestBody Attribute attribute) {
         return ResponseEntity.ok(attributeService.updateAttribute(id, attribute.getName()));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> delete(@PathVariable UUID id) {

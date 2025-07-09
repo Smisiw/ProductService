@@ -1,5 +1,6 @@
 package ru.projects.product_service.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class ProductController {
     private final ProductService productService;
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductRequestDto productRequestDto) {
         return ResponseEntity.ok(productService.createProduct(productRequestDto));
@@ -34,13 +36,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProductById(@PathVariable UUID id) {
         productService.deleteProductById(id);
         return ResponseEntity.ok("Deleted product with id " + id);
     }
 
-
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/{productId}/variations")
     public ResponseEntity<VariationResponseDto> addVariation(@PathVariable UUID productId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.addVariation(productId, variationRequestDto));
@@ -56,6 +59,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getVariationsByIds(ids));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/variations/{variationId}")
     public ResponseEntity<VariationResponseDto> updateVariation(@PathVariable UUID variationId, @RequestBody @Valid VariationRequestDto variationRequestDto) {
         return ResponseEntity.ok(productService.updateVariation(variationId, variationRequestDto));
@@ -66,6 +70,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getVariationsByProductId(productId, pageable));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/variations/{variationId}")
     public ResponseEntity<String> deleteVariation(@PathVariable UUID variationId) {
         productService.deleteVariationById(variationId);
@@ -77,6 +82,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getVariationsByCategoryId(id, pageable));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/checkAndReserve")
     public ResponseEntity<String> checkAndReserve(@RequestBody Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
         productService.checkAndReserve(checkAndReserveItemRequestDtos);
