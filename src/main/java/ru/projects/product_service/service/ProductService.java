@@ -18,10 +18,7 @@ import ru.projects.product_service.mapper.VariationMapper;
 import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.*;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -71,9 +68,9 @@ public class ProductService {
         return variationMapper.toVariationResponseDto(variation);
     }
 
-    public Set<VariationResponseDto> getVariationsByIds(Set<UUID> variationIds) {
-        Set<ProductVariation> variations = new HashSet<>(productVariationRepository.findAllById(variationIds));
-        return variationMapper.toVariationResponseDtoSet(variations);
+    public List<VariationResponseDto> getVariationsByIds(List<UUID> variationIds) {
+        List<ProductVariation> variations = productVariationRepository.findAllById(variationIds);
+        return variationMapper.toVariationResponseDtoList(variations);
     }
 
     public Page<VariationResponseDto> getVariationsByProductId(UUID productId, Pageable pageable) {
@@ -109,13 +106,13 @@ public class ProductService {
     }
 
     @Transactional
-    public void checkAndReserve(Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
-        Set<UUID> productVariationsIds = checkAndReserveItemRequestDtos.stream()
+    public void checkAndReserve(List<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
+        List<UUID> productVariationsIds = checkAndReserveItemRequestDtos.stream()
                 .map(CheckAndReserveItemRequestDto::productVariationId)
-                .collect(Collectors.toSet());
+                .toList();
         Map<UUID, CheckAndReserveItemRequestDto> requestDtoMap = checkAndReserveItemRequestDtos.stream()
                 .collect(Collectors.toMap(CheckAndReserveItemRequestDto::productVariationId, Function.identity()));
-        Set<ProductVariation> productVariations = new HashSet<>(productVariationRepository.findAllById(productVariationsIds));
+        List<ProductVariation> productVariations = productVariationRepository.findAllById(productVariationsIds);
         if (productVariations.size() != checkAndReserveItemRequestDtos.size()) {
             throw new NotRelevantProductInfoException("Some products are unavailable");
         }

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 public record VariationRequestDto(
         @NotNull(message = "variation name must not be null")
@@ -15,6 +15,6 @@ public record VariationRequestDto(
         Integer quantity,
         Integer reserved,
         @Valid
-        Set<AttributeValueRequestDto> attributes
+        List<AttributeValueRequestDto> attributes
 ) {
 }

@@ -15,8 +15,8 @@ import ru.projects.product_service.model.ProductVariation;
 import ru.projects.product_service.repository.CategoryRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,9 +38,9 @@ class ProductMapperTest {
     @Test
     void toProduct_mapsCorrectly_withVariations() {
         VariationRequestDto variationDto = new VariationRequestDto(
-                "Вариант", null, new BigDecimal("100.0"), 5, 0, Set.of()
+                "Вариант", null, new BigDecimal("100.0"), 5, 0, List.of()
         );
-        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"), "Телевизор", Set.of(variationDto));
+        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"), "Телевизор", List.of(variationDto));
 
         Category category = new Category(
                 "Электроника",
@@ -56,8 +56,8 @@ class ProductMapperTest {
                 );
 
         when(categoryRepository.findById(UUID.fromString("707f1afa-adb2-45f2-aa8b-990c3842a183"))).thenReturn(Optional.of(category));
-        when(variationMapper.toProductVariationSet(Set.of(variationDto)))
-                .thenReturn(Set.of(variation));
+        when(variationMapper.toProductVariationList(List.of(variationDto)))
+                .thenReturn(List.of(variation));
 
         Product product = productMapper.toProduct(dto, UUID.fromString("938d60e0-2830-44ea-8073-ec9b5e20ed8d"));
 
@@ -70,7 +70,7 @@ class ProductMapperTest {
 
     @Test
     void toProduct_throws_whenCategoryNotFound() {
-        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("48c87913-3af6-4f6f-9c15-68510ec13ff3"), "Неизвестный", Set.of());
+        ProductRequestDto dto = new ProductRequestDto(UUID.fromString("48c87913-3af6-4f6f-9c15-68510ec13ff3"), "Неизвестный", List.of());
 
         when(categoryRepository.findById(UUID.fromString("48c87913-3af6-4f6f-9c15-68510ec13ff3"))).thenReturn(Optional.empty());
 

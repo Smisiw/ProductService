@@ -3,7 +3,7 @@ package ru.projects.product_service.DTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public record ProductRequestDto(
@@ -12,6 +12,6 @@ public record ProductRequestDto(
         @NotNull
         String name,
         @Valid
-        Set<VariationRequestDto> variations
+        List<VariationRequestDto> variations
 ) {
 }

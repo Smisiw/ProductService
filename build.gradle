@@ -46,6 +46,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.2.Final'
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:3.5.3")
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'

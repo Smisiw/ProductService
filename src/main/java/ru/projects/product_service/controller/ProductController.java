@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.projects.product_service.DTO.*;
 import ru.projects.product_service.service.ProductService;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -55,7 +55,7 @@ public class ProductController {
     }
 
     @PostMapping("/variationsByIds")
-    public ResponseEntity<Set<VariationResponseDto>> getVariationsByIds(@RequestBody Set<UUID> ids) {
+    public ResponseEntity<List<VariationResponseDto>> getVariationsByIds(@RequestBody List<UUID> ids) {
         return ResponseEntity.ok(productService.getVariationsByIds(ids));
     }
 
@@ -84,7 +84,7 @@ public class ProductController {
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/checkAndReserve")
-    public ResponseEntity<String> checkAndReserve(@RequestBody Set<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
+    public ResponseEntity<String> checkAndReserve(@RequestBody List<CheckAndReserveItemRequestDto> checkAndReserveItemRequestDtos) {
         productService.checkAndReserve(checkAndReserveItemRequestDtos);
         return ResponseEntity.ok("Products reserved successfully");
     }

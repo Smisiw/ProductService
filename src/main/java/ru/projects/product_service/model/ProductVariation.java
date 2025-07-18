@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -40,10 +38,10 @@ public class ProductVariation {
     private Product product;
 
     @OneToMany(mappedBy = "variation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<AttributeValue> attributeValues = new HashSet<>();
+    private List<AttributeValue> attributeValues = new ArrayList<>();
 
-    public void setAttributeValues(Set<AttributeValue> attributes) {
-        for (AttributeValue attribute : new HashSet<>(attributeValues)) {
+    public void setAttributeValues(List<AttributeValue> attributes) {
+        for (AttributeValue attribute : attributeValues) {
             attribute.setVariation(null);
         }
         attributeValues.clear();

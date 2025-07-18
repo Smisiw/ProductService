@@ -1,7 +1,7 @@
 package ru.projects.product_service.DTO;
 
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public record VariationResponseDto(
@@ -12,6 +12,6 @@ public record VariationResponseDto(
         Integer quantity,
         Integer reserved,
         BigDecimal price,
-        Set<AttributeValueResponseDto> attributeValues
+        List<AttributeValueResponseDto> attributeValues
 ) {
 }

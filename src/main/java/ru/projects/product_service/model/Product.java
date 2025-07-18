@@ -3,9 +3,7 @@ package ru.projects.product_service.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -33,10 +31,10 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductVariation> variations = new HashSet<>();
+    private List<ProductVariation> variations = new ArrayList<>();
 
-    public void setVariations(Set<ProductVariation> variations) {
-        for (ProductVariation variation : new HashSet<>(this.variations)) {
+    public void setVariations(List<ProductVariation> variations) {
+        for (ProductVariation variation : this.variations) {
             variation.setProduct(null);
         }
         this.variations.clear();

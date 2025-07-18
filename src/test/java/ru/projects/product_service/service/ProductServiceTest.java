@@ -55,13 +55,13 @@ class ProductServiceTest {
         ProductRequestDto requestDto = new ProductRequestDto(
                 UUID.fromString("7ba1cdb1-2a83-435f-9024-36f069d1c7d5"),
                 "Смартфон Samsung Galaxy",
-                Set.of(new VariationRequestDto(
+                List.of(new VariationRequestDto(
                         "Смартфон Samsung Galaxy / 8GB RAM / 256GB ROM",
                         "Модель с отличной производительностью",
                         new BigDecimal("499.99"),
                         50,
                         0,
-                        Set.of(
+                        List.of(
                                 new AttributeValueRequestDto(UUID.fromString("65418ffa-490d-4cef-86f0-52ca75bd983d"), "8GB"),
                                 new AttributeValueRequestDto(UUID.fromString("b871dee2-4625-4b86-b6ca-9806b49b231e"), "256GB")
                         )
@@ -87,13 +87,13 @@ class ProductServiceTest {
                 0
         );
         variation.setDescription("Модель с отличной производительностью");
-        variation.setAttributeValues(Set.of(
+        variation.setAttributeValues(List.of(
                 new AttributeValue("8GB", ramAttr),
                 new AttributeValue("256GB", storageAttr)
         ));
 
         Product product = new Product(sellerId, category);
-        product.setVariations(Set.of(variation));
+        product.setVariations(List.of(variation));
 
         ProductResponseDto productResponse = new ProductResponseDto(
                 UUID.fromString("4a2d4efb-e2bc-47bc-9da5-4efd17229e04"),
@@ -104,7 +104,7 @@ class ProductServiceTest {
                         category.getRouteLocation(),
                         category.getName()
                 ),
-                Set.of(
+                List.of(
                         new VariationResponseDto(
                                 UUID.fromString("737b8979-14f1-427c-8974-c8dc2a79c5bc"),
                                 UUID.fromString("4a2d4efb-e2bc-47bc-9da5-4efd17229e04"),
@@ -113,7 +113,7 @@ class ProductServiceTest {
                                 variation.getQuantity(),
                                 variation.getReserved(),
                                 variation.getPrice(),
-                                Set.of(
+                                List.of(
                                         new AttributeValueResponseDto(
                                                 ramAttr.getId(),
                                                 ramAttr.getName(),

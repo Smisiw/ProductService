@@ -53,12 +53,12 @@ public abstract class VariationMapper {
                 throw new AttributeNotFoundException("Some attributes not found: " + missingIds);
             }
 
-            Set<AttributeValue> attributeValues = variationRequestDto.attributes().stream()
+            List<AttributeValue> attributeValues = variationRequestDto.attributes().stream()
                     .map(attrDto -> {
                         Attribute attribute = attributeMap.get(attrDto.attributeId());
                         return new AttributeValue(attrDto.value(), attribute);
                     })
-                    .collect(Collectors.toSet());
+                    .toList();
             productVariation.setAttributeValues(attributeValues);
         }
 
@@ -66,5 +66,6 @@ public abstract class VariationMapper {
     }
 
     public abstract Set<VariationResponseDto> toVariationResponseDtoSet (Set<ProductVariation> productVariations);
-    public abstract Set<ProductVariation> toProductVariationSet (Set<VariationRequestDto> variationRequestDtos);
+    public abstract List<VariationResponseDto> toVariationResponseDtoList (List<ProductVariation> productVariations);
+    public abstract List<ProductVariation> toProductVariationList (List<VariationRequestDto> variationRequestDtos);
 }

@@ -10,7 +10,7 @@ import ru.projects.product_service.model.Product;
 import ru.projects.product_service.model.ProductVariation;
 import ru.projects.product_service.repository.CategoryRepository;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring", uses = {VariationMapper.class, CategoryMapper.class})
@@ -31,7 +31,7 @@ public abstract class ProductMapper {
         );
         product.setName(productRequestDto.name());
         if (productRequestDto.variations() != null) {
-            Set<ProductVariation> variations = variationMapper.toProductVariationSet(productRequestDto.variations());
+            List<ProductVariation> variations = variationMapper.toProductVariationList(productRequestDto.variations());
             product.setVariations(variations);
         }
         return product;

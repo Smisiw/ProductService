@@ -17,7 +17,6 @@ import ru.projects.product_service.repository.AttributeRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ class VariationMapperTest {
     void toProductVariation_successfulMapping_withAttributes() {
         VariationRequestDto dto = new VariationRequestDto(
                 "Вариант A", "Описание", new BigDecimal("99.99"), 10, 2,
-                Set.of(
+                List.of(
                         new AttributeValueRequestDto(UUID.fromString("a041cfc7-2eb0-45b7-b2e6-aa008ad2f001"), "Red"),
                         new AttributeValueRequestDto(UUID.fromString("dc2a3f64-21f4-43fa-a06e-3c36fa9e8bad"), "XL")
                 )
@@ -71,7 +70,7 @@ class VariationMapperTest {
     void toProductVariation_throws_whenAttributeMissing() {
         VariationRequestDto dto = new VariationRequestDto(
                 "Тест", null, new BigDecimal("10.0"), 1, 0,
-                Set.of(new AttributeValueRequestDto(UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707"), "???"))
+                List.of(new AttributeValueRequestDto(UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707"), "???"))
         );
 
         when(attributeRepository.findAllById(List.of(UUID.fromString("bdb3d8e4-2b13-49e1-a042-02247558a707"))))
@@ -88,19 +87,19 @@ class VariationMapperTest {
 
     @Test
     void toVariationResponseDtoSet_shouldHandleEmptyAndNull() {
-        Set<VariationResponseDto> emptySet = variationMapper.toVariationResponseDtoSet(Set.of());
+        List<VariationResponseDto> emptySet = variationMapper.toVariationResponseDtoList(List.of());
         assertThat(emptySet).isEmpty();
 
-        Set<VariationResponseDto> nullSet = variationMapper.toVariationResponseDtoSet(null);
+        List<VariationResponseDto> nullSet = variationMapper.toVariationResponseDtoList(null);
         assertThat(nullSet).isNull();
     }
 
     @Test
     void toProductVariationSet_shouldHandleEmptyAndNull() {
-        Set<ProductVariation> emptySet = variationMapper.toProductVariationSet(Set.of());
+        List<ProductVariation> emptySet = variationMapper.toProductVariationList(List.of());
         assertThat(emptySet).isEmpty();
 
-        Set<ProductVariation> nullSet = variationMapper.toProductVariationSet(null);
+        List<ProductVariation> nullSet = variationMapper.toProductVariationList(null);
         assertThat(nullSet).isNull();
     }
 }
