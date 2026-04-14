@@ -16,15 +16,21 @@ import ru.projects.product_service.model.*;
 import ru.projects.product_service.repository.ProductRepository;
 import ru.projects.product_service.repository.ProductVariationRepository;
 
+import ru.projects.product_service.exception.NotRelevantProductInfoException;
+import ru.projects.product_service.exception.ProductNotFoundException;
+import ru.projects.product_service.exception.ProductReservationException;
+import ru.projects.product_service.exception.RolePermissionExceprion;
+
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -37,6 +43,8 @@ class ProductServiceTest {
     private ProductMapper productMapper;
     @Mock
     private VariationMapper variationMapper;
+    @Mock
+    private jakarta.persistence.EntityManager entityManager;
 
     @InjectMocks
     private ProductService productService;
@@ -162,4 +170,148 @@ class ProductServiceTest {
         assertEquals(expectedAttributes, actualAttributes);
     }
 
+    // ── getProductById ────────────────────────────────────────────────────────
+
+    @Test
+    void getProductById_returnsDto_whenFound() {
+        UUID productId = UUID.randomUUID();
+        Product product = new Product(sellerId, new Category("Кат", "cat"));
+        ProductResponseDto dto = new ProductResponseDto(productId, "Товар", sellerId,
+                new CategoryResponseDto(UUID.randomUUID(), "cat", "Кат"), List.of());
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productMapper.toProductResponseDto(product)).thenReturn(dto);
+
+        ProductResponseDto result = productService.getProductById(productId);
+
+        assertEquals(productId, result.id());
+    }
+
+    @Test
+    void getProductById_throws_whenNotFound() {
+        UUID productId = UUID.randomUUID();
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ProductNotFoundException.class, () -> productService.getProductById(productId));
+    }
+
+    // ── deleteProductById ─────────────────────────────────────────────────────
+
+    @Test
+    void deleteProductById_succeeds_whenAdmin() {
+        UUID productId = UUID.randomUUID();
+        var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                UUID.randomUUID(), null,
+                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN")));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+
+        Product product = new Product(UUID.randomUUID(), new Category("K", "k"));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        productService.deleteProductById(productId);
+
+        verify(productRepository).delete(product);
+    }
+
+    @Test
+    void deleteProductById_throws_whenSellerIsNotOwner() {
+        UUID ownerId = UUID.randomUUID();
+        UUID productId = UUID.randomUUID();
+
+        // setUp() already set sellerId as principal with ROLE_SELLER
+        Product product = new Product(ownerId, new Category("K", "k"));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        assertThrows(RolePermissionExceprion.class, () -> productService.deleteProductById(productId));
+    }
+
+    // ── checkAndReserve ───────────────────────────────────────────────────────
+
+    @Test
+    void checkAndReserve_reservesSuccessfully() {
+        UUID varId = UUID.randomUUID();
+        ProductVariation variation = new ProductVariation("Вариант", new BigDecimal("100"), 10, 0);
+        variation.setId(varId);
+
+        CheckAndReserveItemRequestDto request = new CheckAndReserveItemRequestDto(varId, 3, new BigDecimal("100"));
+
+        when(productVariationRepository.findAllById(List.of(varId))).thenReturn(List.of(variation));
+
+        productService.checkAndReserve(List.of(request));
+
+        assertEquals(3, variation.getReserved());
+        verify(productVariationRepository).saveAll(List.of(variation));
+    }
+
+    @Test
+    void checkAndReserve_throws_whenSizeMismatch() {
+        UUID varId = UUID.randomUUID();
+        CheckAndReserveItemRequestDto request = new CheckAndReserveItemRequestDto(varId, 1, new BigDecimal("100"));
+
+        when(productVariationRepository.findAllById(List.of(varId))).thenReturn(List.of());
+
+        assertThrows(NotRelevantProductInfoException.class, () -> productService.checkAndReserve(List.of(request)));
+    }
+
+    @Test
+    void checkAndReserve_throws_whenPriceMismatch() {
+        UUID varId = UUID.randomUUID();
+        ProductVariation variation = new ProductVariation("Вариант", new BigDecimal("200"), 10, 0);
+        variation.setId(varId);
+
+        CheckAndReserveItemRequestDto request = new CheckAndReserveItemRequestDto(varId, 1, new BigDecimal("100"));
+        when(productVariationRepository.findAllById(List.of(varId))).thenReturn(List.of(variation));
+
+        assertThrows(NotRelevantProductInfoException.class, () -> productService.checkAndReserve(List.of(request)));
+    }
+
+    @Test
+    void checkAndReserve_throws_whenInsufficientStock() {
+        UUID varId = UUID.randomUUID();
+        ProductVariation variation = new ProductVariation("Вариант", new BigDecimal("100"), 5, 3);
+        variation.setId(varId);
+
+        CheckAndReserveItemRequestDto request = new CheckAndReserveItemRequestDto(varId, 5, new BigDecimal("100"));
+        when(productVariationRepository.findAllById(List.of(varId))).thenReturn(List.of(variation));
+
+        assertThrows(NotRelevantProductInfoException.class, () -> productService.checkAndReserve(List.of(request)));
+    }
+
+    // ── cancelReservation ─────────────────────────────────────────────────────
+
+    @Test
+    void cancelReservation_decreasesReserved() {
+        UUID varId = UUID.randomUUID();
+        ProductVariation variation = new ProductVariation("Вариант", new BigDecimal("100"), 10, 5);
+        variation.setId(varId);
+
+        OrderItemCancelledEvent event = new OrderItemCancelledEvent(varId, 3);
+        when(productVariationRepository.findById(varId)).thenReturn(Optional.of(variation));
+
+        productService.cancelReservation(event);
+
+        assertEquals(2, variation.getReserved());
+        verify(productVariationRepository).save(variation);
+    }
+
+    @Test
+    void cancelReservation_throws_whenVariationNotFound() {
+        UUID varId = UUID.randomUUID();
+        when(productVariationRepository.findById(varId)).thenReturn(Optional.empty());
+
+        assertThrows(ProductNotFoundException.class,
+                () -> productService.cancelReservation(new OrderItemCancelledEvent(varId, 1)));
+    }
+
+    @Test
+    void cancelReservation_throws_whenReservedLessThanQuantity() {
+        UUID varId = UUID.randomUUID();
+        ProductVariation variation = new ProductVariation("Вариант", new BigDecimal("100"), 10, 1);
+        variation.setId(varId);
+
+        when(productVariationRepository.findById(varId)).thenReturn(Optional.of(variation));
+
+        assertThrows(ProductReservationException.class,
+                () -> productService.cancelReservation(new OrderItemCancelledEvent(varId, 5)));
+    }
 }

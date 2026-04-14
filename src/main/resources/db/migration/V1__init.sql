@@ -27,6 +27,7 @@ CREATE TABLE products
     id          uuid PRIMARY KEY default gen_random_uuid(),
     seller_id   uuid NOT NULL,
     category_id uuid NOT NULL REFERENCES categories (id),
+    name        VARCHAR(255),
     created_at  TIMESTAMP DEFAULT now()
 );
 
@@ -36,7 +37,9 @@ CREATE TABLE product_variations
     product_id  uuid            NOT NULL REFERENCES products (id) ON DELETE CASCADE,
     name        TEXT           NOT NULL,
     description TEXT,
-    price       NUMERIC(10, 2) NOT NULL
+    price       NUMERIC(10, 2) NOT NULL,
+    quantity    INTEGER        NOT NULL DEFAULT 0,
+    reserved    INTEGER        NOT NULL DEFAULT 0
 );
 
 CREATE TABLE attribute_values
