@@ -7,14 +7,14 @@ import lombok.*;
 @Getter
 @Setter
 @ToString(exclude = "variation")
-@EqualsAndHashCode(exclude = "variation")
+@EqualsAndHashCode(exclude = {"variation", "id"})
 @Table(name = "attribute_values")
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AttributeValue {
 
     @EmbeddedId
-    private AttributeValueId id;
+    private AttributeValueId id = new AttributeValueId();
 
     @Column(nullable = false)
     @NonNull

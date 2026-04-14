@@ -1,5 +1,6 @@
 package ru.projects.product_service.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class ProductService {
     private final ProductVariationRepository productVariationRepository;
     private final ProductMapper productMapper;
     private final VariationMapper variationMapper;
+    private final EntityManager entityManager;
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
@@ -53,7 +55,7 @@ public class ProductService {
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public void deleteProductById(UUID id) {
         Product product = getProductOrThrow(id);
-        validatePermission(id);
+        validatePermission(product.getSellerId());
         productRepository.delete(product);
     }
 
@@ -61,11 +63,11 @@ public class ProductService {
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public VariationResponseDto addVariation(UUID productId, VariationRequestDto variationRequestDto) {
         Product product = getProductOrThrow(productId);
-        validatePermission(productId);
+        validatePermission(product.getSellerId());
         ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
-        product.addVariation(variation);
-        productRepository.save(product);
-        return variationMapper.toVariationResponseDto(variation);
+        variation.setProduct(product);
+        ProductVariation saved = productVariationRepository.save(variation);
+        return variationMapper.toVariationResponseDto(saved);
     }
 
     public List<VariationResponseDto> getVariationsByIds(List<UUID> variationIds) {
@@ -96,13 +98,19 @@ public class ProductService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
     public VariationResponseDto updateVariation(UUID variationId, VariationRequestDto variationRequestDto) {
-        productVariationRepository.findById(variationId).orElseThrow(
+        ProductVariation existing = productVariationRepository.findById(variationId).orElseThrow(
                 () -> new ProductNotFoundException("Product variation with id " + variationId + " not found")
         );
-        ProductVariation variation = variationMapper.toProductVariation(variationRequestDto);
-        variation.setId(variationId);
-        productVariationRepository.save(variation);
-        return variationMapper.toVariationResponseDto(variation);
+        ProductVariation updated = variationMapper.toProductVariation(variationRequestDto);
+        existing.setName(updated.getName());
+        existing.setDescription(updated.getDescription());
+        existing.setPrice(updated.getPrice());
+        existing.setQuantity(updated.getQuantity());
+        existing.setReserved(updated.getReserved());
+        existing.getAttributeValues().clear();
+        entityManager.flush();
+        existing.setAttributeValues(updated.getAttributeValues());
+        return variationMapper.toVariationResponseDto(productVariationRepository.save(existing));
     }
 
     @Transactional
